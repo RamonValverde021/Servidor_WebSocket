@@ -1,0 +1,24 @@
+{
+  "name": "servidor_websocket",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RamonValverde021/Servidor_WebSocket.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RamonValverde021/Servidor_WebSocket/issues"
+  },
+  "homepage": "https://github.com/RamonValverde021/Servidor_WebSocket#readme",
+  "dependencies": {
+    "ws": "^8.18.3"
+  }
+}
