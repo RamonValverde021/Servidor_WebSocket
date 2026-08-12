@@ -1,0 +1,19 @@
+Na primeira vez que for bixar o repositório:
+
+1. Acesse a pasta dp seu projeto:
+    
+    cd Servidor_WebSocket
+    
+2. Crie o ambiente virtual:
+    
+    python3 -m venv venv
+    
+3. Ative o ambiente virtual:
+    
+    source venv/bin/activate
+    
+4. Agora instale as bibiotecas `pip` que irão funcionará normalmente:
+    
+    pip install websockets
+    
+*(Sempre que for rodar o código no futuro, basta executar o `source venv/bin/activate` antes).*
