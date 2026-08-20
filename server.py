@@ -18,7 +18,6 @@ async def manipulador_conexao(websocket): # Função principal que é executada 
     try: # Inicia um bloco de tentativa: se algo der errado (ex: cliente desconectar do nada), o código pula para o 'except'
         primeira_mensagem = await websocket.recv() # Pausa a execução APENAS para este cliente e aguarda ele enviar a 1ª mensagem
         dados = json.loads(primeira_mensagem) # Converte o pacote recebido (que é um texto puro) em um Dicionário Python
-
         if dados.get("Comando", {}) == "Conexao": # Verifica de forma segura se a intenção do cliente é fazer login/registrar
             id_cliente_Nome = dados.get("ID",{}).get("Nome", "Sem nome definido") # Extrai o nome; se falhar ou não existir, usa o valor padrão
             id_cliente_Identificador = dados.get("ID",{}).get("Identificador", gerar_mac_aleatorio()) # Extrai o MAC/UUID único, se falhar ou não existir, gera um valor MAC aleatório válido
@@ -38,7 +37,7 @@ async def manipulador_conexao(websocket): # Função principal que é executada 
             return # O 'return' mata a função imediatamente, forçando a conexão deste cliente intruso/com erro a ser fechada
 
     except Exception as e: # Captura qualquer erro que tenha ocorrido no bloco 'try' acima (ex: JSON mal formado)
-        print(f"Erro durante o handshake de identificação.\nErro:\n{e}") # Registra no log <=== Aqui futuramente posso guardar esses erros em um banco de dados
+        print(f"Erro durante o handshake de identificação.\nErro: {e}") # Registra no log <=== Aqui futuramente posso guardar esses erros em um banco de dados
         return # Interrompe a função e derruba a conexão
 
     # ==========================================
@@ -63,7 +62,7 @@ async def manipulador_conexao(websocket): # Função principal que é executada 
                 
                 # FUTURO: É exatamente aqui que você vai colocar a sua query SQL 
                 # (ex: cursor.execute("INSERT INTO historico ..."))
-                print(f" >>> [MEMÓRIA INTERNA] Salvando status: O {id_cliente_Nome} relatou que está [{status_atuador}]") # Log provisório
+                # print(f" >>> [MEMÓRIA INTERNA] Salvando status: O {id_cliente_Nome} relatou que está [{status_atuador}]") # Log provisório
             # =======================================================
 
             if destino in clientes_conectados: # Verifica se o UUID de destino existe dentro da nossa "agenda"(websocket) 
@@ -76,7 +75,7 @@ async def manipulador_conexao(websocket): # Função principal que é executada 
                 print(f"Falha no roteamento: o destino [{destino}] está offline.") # Avisa que a mensagem foi descartada
 
     except Exception as e: # Se houver perda de conexão (Wi-Fi caiu, fechou a aba do navegador) durante o loop
-        print(f"Erro de comunicação em [{id_cliente_Nome}]:\nErro:\n{e}") # Loga qual foi o dispositivo que sofreu a queda
+        print(f"Erro de comunicação em [{id_cliente_Nome}]:\nErro: {e}") # Loga qual foi o dispositivo que sofreu a queda
     finally: # Bloco crucial: o código AQUI sempre será executado ao final, tenha dado erro ou não
         if id_cliente_Identificador in clientes_conectados: # Verifica se a ficha do cliente ainda existe na agenda
             del clientes_conectados[id_cliente_Identificador] # Deleta a "gaveta" do cliente, liberando espaço na memória RAM
