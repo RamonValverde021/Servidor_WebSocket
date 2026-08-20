@@ -18,22 +18,31 @@ async def manipulador_conexao(websocket): # Função principal que é executada 
     try: # Inicia um bloco de tentativa: se algo der errado (ex: cliente desconectar do nada), o código pula para o 'except'
         primeira_mensagem = await websocket.recv() # Pausa a execução APENAS para este cliente e aguarda ele enviar a 1ª mensagem
         dados = json.loads(primeira_mensagem) # Converte o pacote recebido (que é um texto puro) em um Dicionário Python
-        if dados.get("Comando", {}) == "Conexao": # Verifica de forma segura se a intenção do cliente é fazer login/registrar
-            id_cliente_Nome = dados.get("ID",{}).get("Nome", "Sem nome definido") # Extrai o nome; se falhar ou não existir, usa o valor padrão
-            id_cliente_Identificador = dados.get("ID",{}).get("Identificador", gerar_mac_aleatorio()) # Extrai o MAC/UUID único, se falhar ou não existir, gera um valor MAC aleatório válido
-            
-            # UPGRADE AQUI: Em vez de salvar só o websocket, salvamos um sub-dicionário
-            clientes_conectados[id_cliente_Identificador] = { # Cria uma nova "gaveta" na agenda usando o Identificador/MAC/UUID único como chave
-                "ws": websocket, # Salva o "cabo" da conexão física para podermos repassar mensagens para ele depois
-                "nome": id_cliente_Nome # Salva o nome amigável para exibirmos em logs e relatórios
-            }
-            
-            if id_cliente_Nome != "Sem nome definido": # Checa se o dispositivo enviou um nome válido
-                print(f"[{id_cliente_Nome}] conectado com sucesso na central!") # Imprime o nome de quem entrou
+        
+        if dados.get("Token", {}) == "GHXXc7VvzJkapZ5x7p6eeEDUoPvOrwY62xX5wKbEq5Oy7i1LxICucyUFqQ93YVHh": # Verifica de forma segura se o Token enviado pelo cliente é válido
+            if dados.get("Sistema", {}) == "LightFy": # Verifica de forma segura se o cliente é realmente do sistema LightFy
+                if dados.get("Comando", {}) == "Conexao": # Verifica de forma segura se a intenção do cliente é fazer login/registrar
+                    id_cliente_Nome = dados.get("ID",{}).get("Nome", "Sem nome definido") # Extrai o nome; se falhar ou não existir, usa o valor padrão
+                    id_cliente_Identificador = dados.get("ID",{}).get("Identificador", gerar_mac_aleatorio()) # Extrai o MAC/UUID único, se falhar ou não existir, gera um valor MAC aleatório válido
+                    
+                    # UPGRADE AQUI: Em vez de salvar só o websocket, salvamos um sub-dicionário
+                    clientes_conectados[id_cliente_Identificador] = { # Cria uma nova "gaveta" na agenda usando o Identificador/MAC/UUID único como chave
+                        "ws": websocket, # Salva o "cabo" da conexão física para podermos repassar mensagens para ele depois
+                        "nome": id_cliente_Nome # Salva o nome amigável para exibirmos em logs e relatórios
+                    }
+                    
+                    if id_cliente_Nome != "Sem nome definido": # Checa se o dispositivo enviou um nome válido
+                        print(f"[{id_cliente_Nome}] conectado com sucesso na central!") # Imprime o nome de quem entrou
+                    else:
+                        print(f"[{id_cliente_Identificador}] conectado com sucesso na central!") # Se não tem nome, imprime o UUID bruto
+                else:
+                    print("Dispositivo não se identificou. Fechando conexão...") # Se a 1ª mensagem não for de Conexão, é uma anomalia
+                    return # O 'return' mata a função imediatamente, forçando a conexão deste cliente intruso/com erro a ser fechada
             else:
-                print(f"[{id_cliente_Identificador}] conectado com sucesso na central!") # Se não tem nome, imprime o UUID bruto
+                print("Sistema inválido. Fechando conexão...") # Se o sistema não bater, é uma tentativa de invasão
+                return # O 'return' mata a função imediatamente, forçando a conexão deste cliente intruso/com erro a ser fechada
         else:
-            print("Dispositivo não se identificou. Fechando conexão...") # Se a 1ª mensagem não for de Conexão, é uma anomalia
+            print("Token inválido. Fechando conexão...") # Se o Token não bater, é uma tentativa de invasão
             return # O 'return' mata a função imediatamente, forçando a conexão deste cliente intruso/com erro a ser fechada
 
     except Exception as e: # Captura qualquer erro que tenha ocorrido no bloco 'try' acima (ex: JSON mal formado)
