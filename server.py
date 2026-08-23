@@ -2,6 +2,14 @@ import asyncio # Biblioteca para lidar com operações simultâneas (permite ate
 import websockets # Biblioteca fundamental que cria e gerencia o servidor e as conexões WebSocket
 import json # Biblioteca para codificar e decodificar os pacotes de dados (transforma texto em Dicionário e vice-versa)
 import random # Biblioteca para trabalhar com valores randomicos
+import os
+from dotenv import load_dotenv
+
+# Carrega as variáveis do arquivo .env para o ambiente
+load_dotenv()
+
+# Acessa as variáveis usando os.getenv
+TOKEN = os.getenv("TOKEN")
 
 # O dicionário agora vai guardar uma "ficha" de cada dispositivo, funcionará como nossa "agenda" principal de conexões ativas na memória
 clientes_conectados = {}
@@ -19,7 +27,7 @@ async def manipulador_conexao(websocket): # Função principal que é executada 
         primeira_mensagem = await websocket.recv() # Pausa a execução APENAS para este cliente e aguarda ele enviar a 1ª mensagem
         dados = json.loads(primeira_mensagem) # Converte o pacote recebido (que é um texto puro) em um Dicionário Python
         
-        if dados.get("Token", {}) == "GHXXc7VvzJkapZ5x7p6eeEDUoPvOrwY62xX5wKbEq5Oy7i1LxICucyUFqQ93YVHh": # Verifica de forma segura se o Token enviado pelo cliente é válido
+        if dados.get("Token", {}) == TOKEN: # Verifica de forma segura se o Token enviado pelo cliente é válido
             if dados.get("Sistema", {}) == "LightFy": # Verifica de forma segura se o cliente é realmente do sistema LightFy
                 if dados.get("Comando", {}) == "Conexao": # Verifica de forma segura se a intenção do cliente é fazer login/registrar
                     id_cliente_Nome = dados.get("ID",{}).get("Nome", "Sem nome definido") # Extrai o nome; se falhar ou não existir, usa o valor padrão
